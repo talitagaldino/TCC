@@ -4,17 +4,29 @@ DESEMPENHO <- read.csv("./TCC/dadosfubica/anonymized_enrollments.csv", sep = ";"
 
 library("dplyr")
 
-#array de colunas que eu vou querer manter de cada tabela para a construção da minha nova tabela
+#função para manter nas tabelas apenas as colunas selecionadas 
 
-cols.want_dados_alunos <- c("gender", "anonymized_registration")
-cols.want_disciplinas <- c("curriculumCode", "subjectCode", "name")
-cols.want_desempenho <- c("anonymized_registration", "subjectCode", "term", "grade", "status")
+limpa_dados = function(colunasMantidas, dataFrame){
+  novaTabela <- dataFrame[,colunasMantidas]
+  
+  return (novaTabela)
+}
 
-#mantendo apenas as colunas selecionadas 
+tabela_disciplinas_presencial = function(disciplinas, dataFrame, periodo_inicial, periodo_final){
+  tabela <- dataFrame %>% dplyr::filter(subjectCode %in% disciplinas) %>% filter(term >= periodo_inicial, term < periodo_final)
+  
+  return(tabela)
+}
 
-DADOS_ALUNOS <-  DADOS_ALUNOS[,cols.want_dados_alunos]
-DESEMPENHO <-  DESEMPENHO[,cols.want_desempenho]
-DISCIPLINAS <-  DISCIPLINAS[,cols.want_disciplinas]
+tabela_disciplinas_remoto = function(disciplinas, dataFrame, periodo_inicial){
+  tabela <- dataFrame %>% dplyr::filter(subjectCode %in% disciplinas) %>% filter(term >= periodo_inicial) %>% filter(status != "Em Curso")
+  
+  return (tabela)
+}
+
+DADOS_ALUNOS <- limpa_dados(c("gender", "anonymized_registration"), DADOS_ALUNOS)
+DISCIPLINAS <- limpa_dados(c("curriculumCode", "subjectCode", "name"), DISCIPLINAS)
+DESEMPENHO <- limpa_dados(c("anonymized_registration", "subjectCode", "term", "grade", "status"), DESEMPENHO)
 
 #array de disciplinas obrigatórias de computação e gerais
 
@@ -25,23 +37,21 @@ obrigatorias_geral <- c("1109049", "1109035", "1109126", "1109131", "1108089", "
 
 merge_disc_notas = merge(x = DESEMPENHO, y = DISCIPLINAS, by = "subjectCode",all = TRUE)
 
-#pegando apenas as disciplinas que foram colocadas no array
-
-obgtr_cc_presencial <- merge_disc_notas %>% dplyr::filter(subjectCode %in% obrigatorias_computacao) %>% filter(term > "2000.1")
-obgtr_geral_presencial <- merge_disc_notas %>% dplyr::filter(subjectCode %in% obrigatorias_geral) %>% filter(term > "2000.1")
-
+CC_PRESENCIAL <- tabela_disciplinas_presencial(obrigatorias_computacao, merge_disc_notas, "2000.1", "2020")
 #fazendo o merge para adicionar o genero
+CC_PRESENCIAL<- merge(x = CC_PRESENCIAL, y = DADOS_ALUNOS, by = "anonymized_registration",all.x = TRUE)
 
-tabela_final_obrigatorias_cc_presencial <- merge(x = obgtr_cc_presencial, y = DADOS_ALUNOS, by = "anonymized_registration",all.x = TRUE)
-tabela_final_obrigatorias_gerais_presencial <- merge(x = obgtr_geral_presencial, y = DADOS_ALUNOS, by = "anonymized_registration",all.x = TRUE)
+GERAIS_PRESENCIAL <- tabela_disciplinas_presencial(obrigatorias_geral, merge_disc_notas, "2000.1", "2020" )
+#fazendo o merge para adicionar o genero
+GERAIS_PRESENCIAL <- merge(x = GERAIS_PRESENCIAL, y = DADOS_ALUNOS, by = "anonymized_registration",all.x = TRUE)
 
 #para os períodos remotos, teremos
 
-obgtr_cc_remoto <- merge_disc_notas %>% dplyr::filter(subjectCode %in% obrigatorias_computacao) %>% filter(term > "2020.1")
-obgtr_geral_remoto <- merge_disc_notas %>% dplyr::filter(subjectCode %in% obrigatorias_geral) %>% filter(term > "2020.1")
+CC_REMOTO <- tabela_disciplinas_remoto(obrigatorias_computacao, merge_disc_notas, "2020")
+#fazendo o merge para adicionar o genero
+CC_REMOTO <- merge(x = CC_REMOTO, y = DADOS_ALUNOS, by = "anonymized_registration",all.x = TRUE)
 
-#fazendo o merge final para adicionar o genero
-
-tabela_final_obrigatorias_cc_remoto <- merge(x = obgtr_cc_remoto, y = DADOS_ALUNOS, by = "anonymized_registration",all.x = TRUE)
-tabela_final_obrigatorias_gerais_remoto <- merge(x = obgtr_geral_remoto, y = DADOS_ALUNOS, by = "anonymized_registration",all.x = TRUE)
+GERAIS_REMOTO <- tabela_disciplinas_remoto(obrigatorias_geral, merge_disc_notas, "2020")
+#fazendo o merge para adicionar o genero
+GERAIS_REMOTO <- merge(x = GERAIS_REMOTO, y = DADOS_ALUNOS, by = "anonymized_registration",all.x = TRUE)
 
