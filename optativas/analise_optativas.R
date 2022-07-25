@@ -1,6 +1,7 @@
-DISCIPLINAS <- read.csv("./TCC/dadosfubica/subjects.csv", sep = ";")
+DISCIPLINAS <- read.csv("./TCC/dadosfubica/subjects.csv", sep = ",")
 DADOS_ALUNOS <- read.csv("./TCC/dadosfubica/anonymized_students.csv", sep = ";")
 DESEMPENHO <- read.csv("./TCC/dadosfubica/anonymized_enrollments.csv", sep = ";")
+theme_set(theme_bw())
 
 library("dplyr")
 library("ggplot2")
@@ -29,9 +30,27 @@ cria_grafico_contagem = function(data, title, limite_maximo, intervalo, cores){
 
 grafico_quantidade_grupos = function(data, title, limite_maximo, intervalo, cores){
   ggplot(data, aes(x=grupo,fill=gender))+
-    theme_light() + coord_flip() + labs(title=title, x = "Quantidade", fill = "Gênero", y = "Grupo de optativas") +
+    coord_flip() + labs(title=title, x = "Quantidade", fill = "Gênero", y = "Grupo de optativas") +
     geom_bar(position="stack") + scale_y_continuous(breaks = seq(0, limite_maximo, by = intervalo)) + scale_fill_manual(values=cores)
 }
+
+calcula_medias = function(data){
+  medias <- data %>% filter(grade != "-") %>% group_by(name,gender, subjectCode, grupo) %>% summarise(media = round(mean(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2))
+  media_por_grupo <- medias %>% group_by(gender, grupo) %>% summarise(media = round(mean(media), 2))
+  
+  return (media_por_grupo) 
+}
+
+cria_grafico_medias = function(data, cores, title){
+  data %>%
+    ggplot(aes(x = media, y = reorder(grupo, media))) +
+    geom_line(aes(group = grupo)) +
+    geom_point(aes(color = gender), size=4) + theme(panel.grid.major.y = element_line(linetype = "dashed")) +
+    scale_colour_manual(values = cores) +
+    scale_x_continuous(breaks=seq(5.0, 10.0, 0.5), limits=c(5, 10)) +
+    labs(title=title, x = "Média", color = "Gênero", y = "Grupo de optativas")
+}
+
 
 
 DADOS_ALUNOS <- limpa_dados(c("gender", "anonymized_registration"), DADOS_ALUNOS)
@@ -52,13 +71,13 @@ array_opt_aleatorias = c('COMPUTAÇÃO E MÚSICA','COMPUTAÇÃO GRÁFICA','ALGOR
 # essas tabelas tem todos os alunos que a pagaram com suas notas, genero e o periodo que aquela disciplina foi paga
 #isso permite a análise de DESEMPENHO dos alunos por genero
 
-TAB_DEV_ARQ <- cria_tabela_grupo_optativa(DISC_GENERO_NOTA, array_opt_dev_arq, "OPTATIVA DEV ARQ")
-TAB_DADOS <- cria_tabela_grupo_optativa(DISC_GENERO_NOTA, array_opt_dados, "OPTATIVA DADOS")
-TAB_GOV_EMP <- cria_tabela_grupo_optativa(DISC_GENERO_NOTA, array_opt_gov_emp, "OPTATIVA GOVERNANÇA E EMPREENDEDORISTO")
-TAB_INFRA_REDES <- cria_tabela_grupo_optativa(DISC_GENERO_NOTA, array_opt_infra_redes, "OPTATIVA INFRA E REDES")
-TAB_APL_OBRIGATORIA <- cria_tabela_grupo_optativa(DISC_GENERO_NOTA, array_opt_aplicacoes_obrigatorias, "OPTATIVA APLICAÇÃO DE OBRIGATÓRIAS")
-TAB_QUALIDADE_SIS <- cria_tabela_grupo_optativa(DISC_GENERO_NOTA, array_opt_qualidade_sistema, "OPTATIVA QUALIDADE DE SISTEMAS")
-TAB_ALEATORIAS <- cria_tabela_grupo_optativa(DISC_GENERO_NOTA, array_opt_aleatorias, "OPTATIVA ALETÓRIA")
+TAB_DEV_ARQ <- cria_tabela_grupo_optativa(DISC_GENERO_NOTA, array_opt_dev_arq, "DESENVOLVIMENTO E ARQUITETURA")
+TAB_DADOS <- cria_tabela_grupo_optativa(DISC_GENERO_NOTA, array_opt_dados, "DADOS")
+TAB_GOV_EMP <- cria_tabela_grupo_optativa(DISC_GENERO_NOTA, array_opt_gov_emp, "GOVERNANÇA E EMPREENDEDORISTO")
+TAB_INFRA_REDES <- cria_tabela_grupo_optativa(DISC_GENERO_NOTA, array_opt_infra_redes, "INFRAESTRUTURA E REDES")
+TAB_APL_OBRIGATORIA <- cria_tabela_grupo_optativa(DISC_GENERO_NOTA, array_opt_aplicacoes_obrigatorias, "APLICAÇÕES DE OBRIGATÓRIAS")
+TAB_QUALIDADE_SIS <- cria_tabela_grupo_optativa(DISC_GENERO_NOTA, array_opt_qualidade_sistema, "QUALIDADE DE SISTEMAS")
+TAB_ALEATORIAS <- cria_tabela_grupo_optativa(DISC_GENERO_NOTA, array_opt_aleatorias, "GERAIS")
 
 # para que possa ser feita uma análise QUANTITATIVA de alunos nas disciplinas, será necessário a criação de novas tabelas que sera feita a seguir
 #obs: análise para períodos PRESENCIAIS
@@ -72,14 +91,15 @@ CONTAGEM_QUALIDADE_SIS_PRESENCIAL <- cria_tabela_contagem_genero(TAB_QUALIDADE_S
 CONTAGEM_ALEATORIAS_PRESENCIAL <- cria_tabela_contagem_genero(TAB_ALEATORIAS %>% filter(term >= "2000.1", term < "2020"))
 
 # criação de gráfico quantitativo para comparar as disciplinas e o gênero nos periodos PRESENCIAIS
+cores_presencial <- c("#DDA0DD","#B0E0E6")
 
-cria_grafico_contagem(CONTAGEM_DEV_ARQ_PRESENCIAL, "Optativas de desenvolvimento e arquitetura", 600, 50, c("#DDA0DD","#B0E0E6"))
-cria_grafico_contagem(CONTAGEM_DADOS_PRESENCIAL, "Optativas de dados", 2000, 200, c("#DDA0DD","#B0E0E6"))
-cria_grafico_contagem(CONTAGEM_GOV_EMP_PRESENCIAL, "Optativas de governança e empreendedorismo", 280, 20, c("#DDA0DD","#B0E0E6"))
-cria_grafico_contagem(CONTAGEM_INFRA_REDES_PRESENCIAL, "Optativas de infraestrutura e redes", 1700, 100, c("#DDA0DD","#B0E0E6"))
-cria_grafico_contagem(CONTAGEM_APL_OBRIGATORIA_PRESENCIAL, "Optativas aplicações de obrigatórias", 200, 50,c("#DDA0DD","#B0E0E6"))
-cria_grafico_contagem(CONTAGEM_QUALIDADE_SIS_PRESENCIAL, "Optativas de qualidade de sistemas", 200, 50, c("#DDA0DD","#B0E0E6"))
-cria_grafico_contagem(CONTAGEM_ALEATORIAS_PRESENCIAL, "Optativas aleatórias", 40, 10, c("#DDA0DD","#B0E0E6"))
+cria_grafico_contagem(CONTAGEM_DEV_ARQ_PRESENCIAL, "Quantidade de alunos em optativas de desenvolvimento e arquitetura em períodos presenciais", 600, 50, cores_presencial)
+cria_grafico_contagem(CONTAGEM_DADOS_PRESENCIAL, "Quantidade de alunos em optativas de dados em períodos presenciais", 2000, 200, cores_presencial)
+cria_grafico_contagem(CONTAGEM_GOV_EMP_PRESENCIAL, "Quantidade de alunos em optativas de governança e empreendedorismo em períodos presenciais", 280, 20, cores_presencial)
+cria_grafico_contagem(CONTAGEM_INFRA_REDES_PRESENCIAL, "Quantidade de alunos em optativas de infraestrutura e redes em períodos presenciais", 1700, 100, cores_presencial)
+cria_grafico_contagem(CONTAGEM_APL_OBRIGATORIA_PRESENCIAL, "Quantidade de alunos em optativas aplicações de obrigatórias em períodos presenciais", 200, 50, cores_presencial)
+cria_grafico_contagem(CONTAGEM_QUALIDADE_SIS_PRESENCIAL, "Quantidade de alunos em optativas de qualidade de sistemas em períodos presenciais", 200, 50, cores_presencial)
+cria_grafico_contagem(CONTAGEM_ALEATORIAS_PRESENCIAL, "Quantidade de alunos em optativas gerais em períodos presenciais", 40, 10, cores_presencial)
 
 # Já para os períodos remotos temos que repetir o mesmo apenas mudando o período
 
@@ -92,19 +112,32 @@ REMOTO_QUALIDADE_SIS <- cria_tabela_contagem_genero(TAB_QUALIDADE_SIS %>% filter
 REMOTO_ALEATORIAS <- cria_tabela_contagem_genero(TAB_ALEATORIAS %>% filter(term >= "2020"))
 
 # Criando os gráficos para os períodos REMOTOS
+cores_remoto <- c("#FF69B4","#3CB371")
 
-cria_grafico_contagem(REMOTO_DEV_ARQ, "Optativas de desenvolvimento e arquitetura em períodos remotos", 150, 25, c("#FF69B4","#3CB371"))
-cria_grafico_contagem(REMOTO_DADOS, "Optativas de dados em períodos remotos", 110, 25, c("#FF69B4","#3CB371"))
-cria_grafico_contagem(REMOTO_GOV_EMP, "Optativas de governança e empreendedorismo em períodos remotos", 150, 25, c("#FF69B4","#3CB371"))
-cria_grafico_contagem(REMOTO_INFRA_REDES, "Optativas de infraestrutura e redes em períodos remotos", 150, 25, c("#FF69B4","#3CB371"))
-cria_grafico_contagem(REMOTO_QUALIDADE_SIS, "Optativas de qualidade de sistemas em períodos remotos", 200, 20, c("#FF69B4","#3CB371"))
-cria_grafico_contagem(REMOTO_ALEATORIAS, "Optativas aleatórias em períodos remotos", 100, 25, c("#FF69B4","#3CB371"))
+cria_grafico_contagem(REMOTO_DEV_ARQ, "Quantidade de alunos em optativas de desenvolvimento e arquitetura em períodos remotos", 150, 25, cores_remoto)
+cria_grafico_contagem(REMOTO_DADOS, "Quantidade de alunos em optativas de dados em períodos remotos", 110, 25, cores_remoto)
+cria_grafico_contagem(REMOTO_GOV_EMP, "Quantidade de alunos em optativas de governança e empreendedorismo em períodos remotos", 150, 25, cores_remoto)
+cria_grafico_contagem(REMOTO_INFRA_REDES, "Quantidade de alunos em optativas de infraestrutura e redes em períodos remotos", 150, 25, cores_remoto)
+cria_grafico_contagem(REMOTO_QUALIDADE_SIS, "Quantidade de alunos em optativas de qualidade de sistemas em períodos remotos", 200, 20, cores_remoto)
+cria_grafico_contagem(REMOTO_ALEATORIAS, "Quantidade de alunos em optativas gerais em períodos remotos", 100, 25, cores_remoto)
 
-# Tentativa de fazer o total por gênero de cada grupo
+# União de todas os grupos em uma tabela geral
 
 TABELA_GERAL <- rbind(TAB_DEV_ARQ, TAB_DADOS, TAB_GOV_EMP, TAB_INFRA_REDES, TAB_APL_OBRIGATORIA, TAB_QUALIDADE_SIS, TAB_ALEATORIAS)
 TABELA_GERAL_PRESENCIAL <- TABELA_GERAL %>% filter(term >= "2000.1", term < "2020")
 TABELA_GERAL_REMOTO <- TABELA_GERAL %>% filter(term >= "2020")
 
-grafico_quantidade_grupos(TABELA_GERAL_PRESENCIAL, title = "Gráfico de quantidade de grupo de optativas nos períodos presenciais", 2800, 200, c("#D8BFD8", "#B0E0E6"))
-grafico_quantidade_grupos(TABELA_GERAL_REMOTO, title = "Gráfico de quantidade de grupo de optativas nos períodos remotos", 500, 50, c("#FF69B4", "#48D1CC"))
+grafico_quantidade_grupos(TABELA_GERAL_PRESENCIAL, title = "Gráfico de quantidade de alunos por grupo de optativas nos períodos presenciais", 2800, 200, cores_presencial)
+grafico_quantidade_grupos(TABELA_GERAL_REMOTO, title = "Gráfico de quantidade de alunos por grupo de optativas nos períodos remotos", 500, 50, cores_remoto)
+
+# Agora, a partir das tabelas existentes serão criados os gráficos de desempenho em cada grupo para os períodos remotos X presenciais
+
+#Desempenho REMOTO
+# Para isso é necessário calcular a média daqueles alunos para cada grupo
+medias_remoto <- calcula_medias(TABELA_GERAL_REMOTO)
+#Criação do gráfico de desempenho
+cria_grafico_medias(medias_remoto, cores_remoto, "Desempenho dos alunos nas optativas nos períodos REMOTOS")
+
+#Desempenho PRESENCIAL
+medias_presencial <- calcula_medias(TABELA_GERAL_PRESENCIAL)
+cria_grafico_medias(medias_presencial, cores_presencial, "Desempenho dos alunos nas optativas nos períodos PRESENCIAIS")
