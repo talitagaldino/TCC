@@ -38,7 +38,6 @@ gera_grafico_desempenho = function(data, titulo, cores){
      labs(title = titulo,
           x = "Média",
           y = "Disciplina", color="Gênero") + scale_colour_manual(values = cores) +
-    #scale_x_continuous(breaks = seq(4,8,by=0.2))
     scale_x_continuous(breaks=seq(5.0, 9.0, 0.2), limits=c(5, 9))
   
 }
