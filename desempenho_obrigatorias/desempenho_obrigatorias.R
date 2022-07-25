@@ -30,6 +30,19 @@ gera_tabela_media = function(data){
   return (medias)
 }
 
+gera_grafico_desempenho = function(data, titulo, cores){
+  data %>%
+    ggplot(aes(x = media, y = reorder(name, media))) +
+    geom_line(aes(group = name)) +
+    geom_point(aes(color = factor(gender)), size=4) + theme_bw() + theme(panel.grid.major.y = element_line(linetype = "dashed")) +
+     labs(title = titulo,
+          x = "Média",
+          y = "Disciplina", color="Gênero") + scale_colour_manual(values = cores) +
+    #scale_x_continuous(breaks = seq(4,8,by=0.2))
+    scale_x_continuous(breaks=seq(5.0, 9.0, 0.2), limits=c(5, 9))
+  
+}
+
 DADOS_ALUNOS <- limpa_dados(c("gender", "anonymized_registration"), DADOS_ALUNOS)
 DISCIPLINAS <- limpa_dados(c("curriculumCode", "subjectCode", "name"), DISCIPLINAS)
 DESEMPENHO <- limpa_dados(c("anonymized_registration", "subjectCode", "term", "grade", "status"), DESEMPENHO)
@@ -71,15 +84,13 @@ MEDIAS_GERAIS_REMOTO <- gera_tabela_media(GERAIS_REMOTO)
 MEDIAS_CC_PRESENCIAL <- gera_tabela_media(CC_PRESENCIAL)
 MEDIAS_CC_REMOTO <- gera_tabela_media(CC_REMOTO)
 
+# para os periodos presenciais teremos
 
-ggplot(MEDIAS_GERAIS_PRESENCIAL) +
-  geom_point(aes(x=media, y=name, color=gender), size=3) +
-  geom_segment(aes(x = media, xend = media,
-                   y = name, yend = name),
-               size = 2, show.legend = F) + scale_x_continuous(breaks = seq(5,7,by=0.2)) + theme_bw() +
-  labs(title = "Média dos alunos em disciplinas de outros departamentos em períodos presenciais",
-       x = "Média",
-       y = "Disciplina", color="Gênero") + scale_colour_manual(values = c("orange", "seagreen3"))
+gera_grafico_desempenho(MEDIAS_GERAIS_PRESENCIAL, "Média dos alunos em disciplinas de outros departamentos em períodos presenciais", c("#DA81F5", "#01DF74"))
+gera_grafico_desempenho(MEDIAS_CC_PRESENCIAL, "Média dos alunos em disciplinas do departamento de computação em períodos presenciais", c("#DA81F5", "#01DF74"))
 
-  
-  
+# já para os períodos remotos
+
+gera_grafico_desempenho(MEDIAS_GERAIS_REMOTO, "Média dos alunos em disciplinas de outros departamentos em períodos REMOTOS", c("#F5A9E1", "#819FF7"))
+gera_grafico_desempenho(MEDIAS_CC_REMOTO, "Média dos alunos em disciplinas do departamento de computação em períodos REMOTOS", c("#F5A9E1", "#819FF7"))
+
