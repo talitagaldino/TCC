@@ -25,7 +25,7 @@ tabela_disciplinas_remoto = function(disciplinas, dataFrame, periodo_inicial){
 }
 
 gera_tabela_media = function(data){
-  medias <- data %>% group_by(name,gender, subjectCode) %>% summarise(media = round(mean(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2))
+  medias <- data %>% group_by(name,gender, subjectCode) %>% filter(grade != "-") %>% summarise(media = round(mean(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2))
   
   return (medias)
 }
@@ -38,7 +38,7 @@ gera_grafico_desempenho = function(data, titulo, cores){
      labs(title = titulo,
           x = "Média",
           y = "Disciplina", color="Gênero") + scale_colour_manual(values = cores) +
-    scale_x_continuous(breaks=seq(5.0, 9.0, 0.2), limits=c(5, 9))
+    scale_x_continuous(breaks=seq(5.0, 10.0, 0.2), limits=c(5, 10))
   
 }
 
