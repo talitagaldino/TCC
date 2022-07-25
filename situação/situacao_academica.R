@@ -1,6 +1,8 @@
 DADOS_ALUNOS <- read.csv("./TCC/dadosfubica/anonymized_students.csv", sep = ";")
 library("dplyr")
 library("ggplot2")
+library("fmsb")
+
 
 #filtragem pela forma de evasão
 
@@ -15,16 +17,6 @@ ggplot(motivos_evasao_sem_ativos, aes(x = statusCode, y=quantidade, fill = facto
   labs(title = "Situação acadêmica nos períodos remotos",
        x = "Situação",
        y = "Quantidade",
-       fill = "Gênero") +
+       fill = "Gênero") + 
   scale_fill_manual(values=c("#FF69B4",
                              "#00BFFF"))
-
-ggplot(quantidade_ativos, aes(x = statusCode, y=quantidade, fill = factor(gender))) + 
-  geom_bar(stat="identity", position = position_dodge(width = 0.5))  + 
-  labs(title = "Situação acadêmica nos períodos remotos",
-       x = "Situação",
-       y = "Quantidade",
-       fill = "Gênero") +
-  scale_fill_manual(values=c("#FF69B4",
-                             "#00BFFF"))
-
