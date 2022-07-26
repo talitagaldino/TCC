@@ -3,17 +3,18 @@ library("dplyr")
 library("ggplot2")
 library("tidyverse")
 
-theme_set(theme_minimal())
-
 DADOS_ALUNOS$admissionGrade = as.numeric(sub(",", ".", DADOS_ALUNOS$admissionGrade, fixed = TRUE))
 
+media_geral_remoto <- DADOS_ALUNOS %>% filter(!is.na(admissionGrade)) %>% filter(admissionGrade != 0) %>%dplyr::filter(admissionYear >= "2020") %>%  group_by(admissionYear, gender) %>% dplyr::summarise(media_ingresso = round(mean(admissionGrade),2))
 
-media_geral <- DADOS_ALUNOS %>% dplyr::filter(admissionYear >= "2020.1") %>% dplyr::filter(admissionGrade != "-") %>% group_by(admissionYear) %>% dplyr::summarise(media_ingresso = mean(admissionGrade))
+media_geral_presencial <- DADOS_ALUNOS %>% filter(!is.na(admissionGrade)) %>% filter(admissionGrade != 0) %>% dplyr::filter(admissionYear >= "2000", admissionYear < "2020") %>%  group_by(admissionYear, gender) %>% dplyr::summarise(media_ingresso = round(mean(admissionGrade),2))
 
-media_feminina <- DADOS_ALUNOS %>% dplyr::filter(admissionYear >= "2020.1") %>% dplyr::filter(admissionGrade != "-") %>% dplyr::filter(gender == "Feminino") %>% group_by(admissionYear) %>% dplyr::summarise(media_ingresso = mean(admissionGrade))
+ggplot(media_geral_remoto, aes(x=as.factor(admissionYear), y=media_ingresso, group=gender)) +
+  geom_line(aes(color=gender))+
+  scale_y_continuous(breaks = seq(500, 800, 50), limits=c(500,800)) + scale_colour_manual(values = c("#FF69B4","#3CB371")) +
+  labs(x="Período", y="Média de ingresso", color="Gênero", title="Média de ingresso nos períodos remotos")
 
-ggplot(data=media_geral, aes(x=as.factor(admissionYear), y=media_ingresso,group=1)) + 
-  geom_line(color = "#fc0fc0", size=1.5) +
-  geom_line(aes(y=media_feminina$media_ingresso), color="steelblue") + 
-  labs(x = "Período", y = "Média da nota de ingresso", title = "Comparação entre média de ingresso feminina e geral do curso") + stat_summary(fun=sum, geom="line") 
-
+ggplot(media_geral_presencial, aes(x=as.factor(admissionYear), y=media_ingresso, group=gender)) +
+  geom_line(aes(color=gender))+
+ scale_y_continuous(breaks = seq(500, 800, 50), limits=c(500,800)) + scale_colour_manual(values = c("#DDA0DD","#B0E0E6")) +
+  labs(x="Período", y="Média de ingresso", color="Gênero", title="Média de ingresso nos períodos presenciais")
