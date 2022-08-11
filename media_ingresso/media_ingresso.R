@@ -21,3 +21,15 @@ ggplot(media_geral_presencial, aes(x=as.factor(admissionYear), y=media_ingresso,
  scale_y_continuous(breaks = seq(500, 800, 50), limits=c(500,800)) + scale_colour_manual(values = c("#DDA0DD","#B0E0E6")) +
   labs(x="Período", y="Média de ingresso", color="Sexo") + geom_point(aes(color=gender))+ theme(axis.text.x = element_text(angle = 90), panel.background = element_rect(fill="white"),panel.grid.minor.y = element_line(size=2),
                                                                                                 panel.grid.major = element_line(colour = "grey"))
+
+media_fem_tabela_remoto <- media_geral_remoto %>% filter(gender == "Feminino")
+mean(as.numeric(media_fem_tabela_remoto$media_ingresso))
+
+media_mas_tabela_remoto <- media_geral_remoto %>% filter(gender == "Masculino")
+mean(as.numeric(media_mas_tabela_remoto$media_ingresso))
+
+media_fem_tabela_presencial <- media_geral_presencial %>% filter(gender == "Feminino")
+mean(as.numeric(media_fem_tabela_presencial$media_ingresso))
+
+media_mas_tabela_presencial <- media_geral_presencial %>% filter(gender == "Masculino")
+mean(as.numeric(media_mas_tabela_presencial$media_ingresso))

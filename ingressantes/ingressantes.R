@@ -56,3 +56,7 @@ typeof(media_masc_tabela$porcentagem)
 
 media_fem_tabela_remoto <- ingressantes_porcentagem_remoto %>% filter(gender == "Feminino")
 mean(as.numeric(media_fem_tabela_remoto$porcentagem))
+
+mulheres2021 <- media_fem_tabela_remoto[media_fem_tabela_remoto$admissionYear >= "2021" , ]
+
+total2021 = sum(mulheres2021$Quantidade)
