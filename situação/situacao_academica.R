@@ -58,3 +58,4 @@ motivos_evasao_presencial_periodo %>% filter(statusCode == "GRADUADO") %>%
        x = "Período",
        fill = "Gênero") + scale_fill_manual(values= c("#DA81F5", "#01DF74"))
 
+graduados <- DADOS_ALUNOS %>% filter(statusCode == "GRADUADO")%>% group_by(statusCode, gender) %>% summarise(quantidade = n())
