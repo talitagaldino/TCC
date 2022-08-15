@@ -22,19 +22,17 @@ cores_remoto <- c("#FF69B4","#3CB371")
 ggplot(EVASAO_REMOTO_QUANTIDADE,aes(x=completedTerms, y=quantidade, fill = gender)) +
   geom_col() + 
   scale_fill_manual(values= cores_remoto) +
-  labs(title = "Período de evasão dos alunos nos períodos REMOTOS",
-       y = "Quantidade de alunos",
+  labs(y = "Quantidade de alunos",
        x = "Períodos cursados",
-       fill = "Gênero") + scale_x_continuous(breaks=seq(0, 15,1)) +
-  scale_y_continuous(breaks=seq(0, 25,1))
+       fill = "Sexo") + scale_x_continuous(breaks=seq(0, 15,1)) +
+  scale_y_continuous(breaks=seq(0, 25,1)) + theme(legend.position = "top") 
 
 EVASAO_PRESENCIAL_QUANTIDADE <- EVASAO_PRESENCIAL %>% group_by(gender, completedTerms, statusCode) %>% summarise(quantidade = n())
 cores_presencial <- c("#DDA0DD","#B0E0E6")
 ggplot(EVASAO_PRESENCIAL_QUANTIDADE,aes(x=completedTerms, y=quantidade, fill = gender)) +
   geom_col() + 
   scale_fill_manual(values= cores_presencial) +
-  labs(title = "Período de evasão dos alunos nos períodos PRESENCIAIS",
-       y = "Quantidade de alunos",
+  labs(y = "Quantidade de alunos",
        x = "Períodos cursados",
-       fill = "Gênero") + scale_x_continuous(breaks=seq(0, 16,1)) +
-  scale_y_continuous(breaks=seq(0, 250,25))
+       fill = "Sexo") + scale_x_continuous(breaks=seq(0, 16,1)) +
+  scale_y_continuous(breaks=seq(0, 250,25)) + theme(legend.position = "top") 

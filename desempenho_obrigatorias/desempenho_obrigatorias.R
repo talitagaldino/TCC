@@ -3,6 +3,8 @@ DADOS_ALUNOS <- read.csv("./TCC/dadosfubica/anonymized_students.csv", sep = ";")
 DESEMPENHO <- read.csv("./TCC/dadosfubica/anonymized_enrollments.csv", sep = ";")
 
 library("dplyr")
+library("ggplot2")
+
 
 #função para manter nas tabelas apenas as colunas selecionadas 
 
@@ -55,7 +57,7 @@ gera_grafico_MEDIANAS = function(data, cores){
     geom_point(aes(color = factor(gender)), size=4) + theme_bw() + theme(panel.grid.major.y = element_line(linetype = "dashed")) +
     labs(x = "Mediana",
          y = "Disciplina", color="Gênero") + scale_colour_manual(values = cores) +
-    scale_x_continuous(breaks=seq(5.0, 10.0, 0.2), limits=c(5, 10)) + theme(axis.text.y = element_text(angle = 30), panel.background = element_rect(fill="white"),panel.grid.minor.y = element_line(size=2),
+    scale_x_continuous(breaks=seq(5.0, 10.0, 0.5), limits=c(5, 10)) + theme(legend.position = "top", panel.background = element_rect(fill="white"),panel.grid.minor.y = element_line(size=2),
                                                                           panel.grid.major = element_line(colour = "grey"))
   
 }
@@ -127,4 +129,38 @@ gera_grafico_MEDIANAS(PRESENCIAL_MEDIANA_CC,  c("#DA81F5", "#01DF74"))
 
 gera_grafico_MEDIANAS(REMOTO_MEDIANA_GERAIS, c("#F5A9E1", "#819FF7"))
 gera_grafico_MEDIANAS(REMOTO_MEDIANA_CC, c("#F5A9E1", "#819FF7"))
+
+# MEDIAS CC PRESENCIAL 
+
+media_mediana_geral_presencial <- mean(PRESENCIAL_MEDIANA_CC$mediana)
+homens_Cc_presencial <- PRESENCIAL_MEDIANA_CC %>% filter(gender == 'Masculino')
+mean(homens_Cc_presencial$mediana)
+
+mulheres_Cc_presencial <- PRESENCIAL_MEDIANA_CC %>% filter(gender == 'Feminino')
+mean(mulheres_Cc_presencial$mediana)
+
+# MEDIAS CC REMOTO
+
+CC_REMOTO_MEDIA_MEDIANA <- mean(REMOTO_MEDIANA_CC$mediana)
+homens_CC_remoto <- REMOTO_MEDIANA_CC %>% filter(gender == 'Masculino')
+mean(homens_CC_remoto$mediana)
+
+mulheres_CC_remoto <- REMOTO_MEDIANA_CC %>% filter(gender == 'Feminino')
+mean(mulheres_CC_remoto$mediana)
+
+# PRESENCIAIS GERAIS
+geral_geral_presencial <- mean(PRESENCIAL_MEDIANA_GERAIS$mediana)
+mulheres_GERAIS_presencial <- PRESENCIAL_MEDIANA_GERAIS %>% filter(gender == 'Feminino')
+mean(mulheres_GERAIS_presencial$mediana)
+
+homens_GERAIS_presencial <- PRESENCIAL_MEDIANA_GERAIS %>% filter(gender == 'Masculino')
+mean(homens_GERAIS_presencial$mediana)
+
+# remoto gerais
+geral_geral_remoto <- mean(REMOTO_MEDIANA_GERAIS$mediana)
+mulheres_GERAIS_remoto <- REMOTO_MEDIANA_GERAIS %>% filter(gender == 'Feminino')
+mean(mulheres_GERAIS_remoto$mediana)
+
+homens_GERAIS_remoto <- REMOTO_MEDIANA_GERAIS %>% filter(gender == 'Masculino')
+mean(homens_GERAIS_remoto$mediana)
 

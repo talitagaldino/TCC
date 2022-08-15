@@ -31,15 +31,15 @@ ggplot(ingressantes_presencial_porcentagem, aes(x=as.factor(admissionYear), y=Qu
                                        y = "Quantidade de ingressantes",
                                        color = "Sexo") +
   scale_color_manual(values= c("#DA81F5", "#01DF74"))  + scale_y_continuous(breaks=seq(0, 100, 10)) +
-  theme(axis.text.x = element_text(angle = 90), panel.background = element_rect(fill="white"),panel.grid.minor.y = element_line(size=2),
-        panel.grid.major = element_line(colour = "grey"))
+  theme(axis.text.x = element_text(angle = 90), panel.background = element_rect(fill="white"),panel.grid.minor.y = element_line(size=0.5),
+        panel.grid.major = element_line(colour = "grey"), legend.position = "top") 
 
 ggplot(ingressantes_porcentagem_remoto, aes(x=as.factor(admissionYear), y=Quantidade, group=gender)) +
   geom_line(aes(color=gender))+
   geom_point(aes(color=gender))+  labs(x = "Período",
                                        y = "Quantidade de ingressantes",
                                        color = "Sexo") +
-  scale_color_manual(values= c("#F5A9E1", "#819FF7")) + scale_y_continuous(breaks=seq(0, 100, 10)) +  theme(axis.text.x = element_text(angle = 90), panel.background = element_rect(fill="white"),panel.grid.minor.y = element_line(size=2),
+  scale_color_manual(values= c("#F5A9E1", "#819FF7")) + scale_y_continuous(breaks=seq(0, 100, 10)) +  theme(legend.position = "top", axis.text.x = element_text(angle = 90), panel.background = element_rect(fill="white"),panel.grid.minor.y = element_line(size=2),
                                                                                                             panel.grid.major = element_line(colour = "grey"))
 
 media_masc_tabela <- ingressantes_presencial_porcentagem %>% filter(gender == "Masculino")
