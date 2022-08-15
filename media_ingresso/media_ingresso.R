@@ -12,9 +12,24 @@ media_geral_presencial <- DADOS_ALUNOS %>% filter(!is.na(admissionGrade)) %>% fi
 ggplot(media_geral_remoto, aes(x=as.factor(admissionYear), y=media_ingresso, group=gender)) +
   geom_line(aes(color=gender))+
   scale_y_continuous(breaks = seq(500, 800, 50), limits=c(500,800)) + scale_colour_manual(values = c("#FF69B4","#3CB371")) +
-  labs(x="Período", y="Média de ingresso", color="Gênero", title="Média de ingresso nos períodos remotos")
+  labs(x="Período", y="Média de ingresso", color="Sexo") +  geom_point(aes(color=gender))+ theme(legend.position = "top", axis.text.x = element_text(angle = 90), panel.background = element_rect(fill="white"),panel.grid.minor.y = element_line(size=2),
+                                                                                                 panel.grid.major = element_line(colour = "grey"))
+
 
 ggplot(media_geral_presencial, aes(x=as.factor(admissionYear), y=media_ingresso, group=gender)) +
   geom_line(aes(color=gender))+
  scale_y_continuous(breaks = seq(500, 800, 50), limits=c(500,800)) + scale_colour_manual(values = c("#DDA0DD","#B0E0E6")) +
-  labs(x="Período", y="Média de ingresso", color="Gênero", title="Média de ingresso nos períodos presenciais")
+  labs(x="Período", y="Média de ingresso", color="Sexo") + geom_point(aes(color=gender))+ theme(legend.position = "top", axis.text.x = element_text(angle = 90), panel.background = element_rect(fill="white"),panel.grid.minor.y = element_line(size=2),
+                                                                                                panel.grid.major = element_line(colour = "grey"))
+
+media_fem_tabela_remoto <- media_geral_remoto %>% filter(gender == "Feminino")
+mean(as.numeric(media_fem_tabela_remoto$media_ingresso))
+
+media_mas_tabela_remoto <- media_geral_remoto %>% filter(gender == "Masculino")
+mean(as.numeric(media_mas_tabela_remoto$media_ingresso))
+
+media_fem_tabela_presencial <- media_geral_presencial %>% filter(gender == "Feminino")
+mean(as.numeric(media_fem_tabela_presencial$media_ingresso))
+
+media_mas_tabela_presencial <- media_geral_presencial %>% filter(gender == "Masculino")
+mean(as.numeric(media_mas_tabela_presencial$media_ingresso))

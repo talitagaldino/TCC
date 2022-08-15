@@ -24,14 +24,14 @@ cria_tabela_contagem_genero = function(data){
 
 cria_grafico_contagem = function(data, title, limite_maximo, intervalo, cores){
   ggplot(data, aes(x = name, quantidade, fill = gender)) + geom_bar(stat="identity", position = "dodge") + coord_flip() +
-    labs(title=title, x = "Disciplinas", fill = "Gênero", y = "Quantidade de alunos") + scale_y_continuous(breaks = seq(0, limite_maximo, by = intervalo)) +
+    labs(title=title, x = "Disciplinas", fill = "Sexo", y = "Quantidade de alunos") + scale_y_continuous(breaks = seq(0, limite_maximo, by = intervalo)) +
     scale_fill_manual(values=cores)
 }
 
-grafico_quantidade_grupos = function(data, title, limite_maximo, intervalo, cores){
+grafico_quantidade_grupos = function(data, limite_maximo, intervalo, cores){
   ggplot(data, aes(x=grupo,fill=gender))+
-    coord_flip() + labs(title=title, x = "Quantidade", fill = "Gênero", y = "Grupo de optativas") +
-    geom_bar(position="stack") + scale_y_continuous(breaks = seq(0, limite_maximo, by = intervalo)) + scale_fill_manual(values=cores)
+    coord_flip() + labs(x = "Grupo de optativas", fill = "Sexo", y = "Quantidade") +
+    geom_bar(position="dodge") + scale_y_continuous(breaks = seq(0, limite_maximo, by = intervalo)) + scale_fill_manual(values=cores) + theme(legend.position = "top", panel.background = element_rect(fill="white"),panel.grid.minor.y = element_line(size=2),                                                                                                                                          panel.grid.major = element_line(colour = "grey"))
 }
 
 calcula_medias = function(data){
@@ -39,6 +39,13 @@ calcula_medias = function(data){
   media_por_grupo <- medias %>% group_by(gender, grupo) %>% summarise(media = round(mean(media), 2))
   
   return (media_por_grupo) 
+}
+
+calcula_medianas = function(data){
+  medianas <- data %>% filter(grade != "-") %>% group_by(name,gender, subjectCode, grupo) %>% summarise(mediana = round(median(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2))
+  mediana_por_grupo <- medianas %>% group_by(gender, grupo) %>% summarise(mediana = round(median(mediana), 2))
+  
+  return (mediana_por_grupo) 
 }
 
 cria_grafico_medias = function(data, cores, title){
@@ -49,6 +56,17 @@ cria_grafico_medias = function(data, cores, title){
     scale_colour_manual(values = cores) +
     scale_x_continuous(breaks=seq(5.0, 10.0, 0.5), limits=c(5, 10)) +
     labs(title=title, x = "Média", color = "Gênero", y = "Grupo de optativas")
+}
+
+cria_grafico_medianas = function(data, cores){
+  data %>%
+    ggplot(aes(x = mediana, y = reorder(grupo, mediana))) +
+    geom_line(aes(group = grupo)) +
+    geom_point(aes(color = factor(gender)), size=4) + theme_bw() + theme(panel.grid.major.y = element_line(linetype = "dashed")) +
+    labs(x = "Mediana",
+         y = "Disciplina", color="Gênero") + scale_colour_manual(values = cores) +
+    scale_x_continuous(breaks=seq(5.0, 10.0, 0.5), limits=c(5, 10)) + theme(legend.position = "top", panel.background = element_rect(fill="white"),panel.grid.minor.y = element_line(size=2),
+                                                                            panel.grid.major = element_line(colour = "grey"))
 }
 
 
@@ -127,17 +145,31 @@ TABELA_GERAL <- rbind(TAB_DEV_ARQ, TAB_DADOS, TAB_GOV_EMP, TAB_INFRA_REDES, TAB_
 TABELA_GERAL_PRESENCIAL <- TABELA_GERAL %>% filter(term >= "2000.1", term < "2020")
 TABELA_GERAL_REMOTO <- TABELA_GERAL %>% filter(term >= "2020")
 
-grafico_quantidade_grupos(TABELA_GERAL_PRESENCIAL, title = "Gráfico de quantidade de alunos por grupo de optativas nos períodos presenciais", 2800, 200, cores_presencial)
-grafico_quantidade_grupos(TABELA_GERAL_REMOTO, title = "Gráfico de quantidade de alunos por grupo de optativas nos períodos remotos", 500, 50, cores_remoto)
+grafico_quantidade_grupos(TABELA_GERAL_PRESENCIAL, 2800, 200, cores_presencial)
+grafico_quantidade_grupos(TABELA_GERAL_REMOTO, 500, 50, cores_remoto)
 
 # Agora, a partir das tabelas existentes serão criados os gráficos de desempenho em cada grupo para os períodos remotos X presenciais
 
 #Desempenho REMOTO
 # Para isso é necessário calcular a média daqueles alunos para cada grupo
 medias_remoto <- calcula_medias(TABELA_GERAL_REMOTO)
+#MEDIANAS
+
+medianas_remoto <- calcula_medianas(TABELA_GERAL_REMOTO)
 #Criação do gráfico de desempenho
+
 cria_grafico_medias(medias_remoto, cores_remoto, "Desempenho dos alunos nas optativas nos períodos REMOTOS")
+
+cria_grafico_medianas(medianas_remoto, cores_remoto)
+media_medianas_remoto <- mean(medianas_remoto$mediana)
+
 
 #Desempenho PRESENCIAL
 medias_presencial <- calcula_medias(TABELA_GERAL_PRESENCIAL)
 cria_grafico_medias(medias_presencial, cores_presencial, "Desempenho dos alunos nas optativas nos períodos PRESENCIAIS")
+
+medianas_presencial <- calcula_medianas(TABELA_GERAL_PRESENCIAL)
+cria_grafico_medianas(medianas_presencial, cores_presencial)
+
+media_medianas_presencial <- mean(medianas_presencial$mediana)
+
