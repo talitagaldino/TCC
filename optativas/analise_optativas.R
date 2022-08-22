@@ -35,17 +35,22 @@ grafico_quantidade_grupos = function(data, limite_maximo, intervalo, cores){
 }
 
 calcula_medias = function(data){
-  medias <- data %>% filter(grade != "-") %>% group_by(name,gender, subjectCode, grupo) %>% summarise(media = round(mean(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2))
-  media_por_grupo <- medias %>% group_by(gender, grupo) %>% summarise(media = round(mean(media), 2))
-  
-  return (media_por_grupo) 
+  medias <- data %>% filter(grade != "-") %>% group_by(gender, grupo) %>% 
+    summarise(media = round(mean(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2), dp = round(sd(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2), mediana = round(median(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2)) %>%
+    mutate(coeficiente = (dp/media)*100)
+  return (medias) 
 }
 
 calcula_medianas = function(data){
-  medianas <- data %>% filter(grade != "-") %>% group_by(name,gender, subjectCode, grupo) %>% summarise(mediana = round(median(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2))
-  mediana_por_grupo <- medianas %>% group_by(gender, grupo) %>% summarise(mediana = round(median(mediana), 2))
-  
-  return (mediana_por_grupo) 
+  medianas <- data %>% filter(grade != "-") %>% group_by(gender, grupo) %>% summarise(mediana = round(median(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2))
+
+  return (medianas) 
+}
+
+coeficiente_geral = function(data){
+  result <- data %>% filter(grade != "-") %>% group_by(gender) %>% 
+    summarise(media = round(mean(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2), dp = round(sd(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2), mediana = round(median(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2)) %>%
+    mutate(coeficiente = (dp/media)*100)
 }
 
 cria_grafico_medias = function(data, cores, title){
@@ -55,7 +60,7 @@ cria_grafico_medias = function(data, cores, title){
     geom_point(aes(color = gender), size=4) + theme(panel.grid.major.y = element_line(linetype = "dashed")) +
     scale_colour_manual(values = cores) +
     scale_x_continuous(breaks=seq(5.0, 10.0, 0.5), limits=c(5, 10)) +
-    labs(title=title, x = "Média", color = "Gênero", y = "Grupo de optativas")
+    labs(title=title, x = "Média", color = "Sexo", y = "Grupo de optativas")
 }
 
 cria_grafico_medianas = function(data, cores){
@@ -64,7 +69,7 @@ cria_grafico_medianas = function(data, cores){
     geom_line(aes(group = grupo)) +
     geom_point(aes(color = factor(gender)), size=4) + theme_bw() + theme(panel.grid.major.y = element_line(linetype = "dashed")) +
     labs(x = "Mediana",
-         y = "Disciplina", color="Gênero") + scale_colour_manual(values = cores) +
+         y = "Disciplina", color="Sexo") + scale_colour_manual(values = cores) +
     scale_x_continuous(breaks=seq(5.0, 10.0, 0.5), limits=c(5, 10)) + theme(legend.position = "top", panel.background = element_rect(fill="white"),panel.grid.minor.y = element_line(size=2),
                                                                             panel.grid.major = element_line(colour = "grey"))
 }
@@ -153,6 +158,7 @@ grafico_quantidade_grupos(TABELA_GERAL_REMOTO, 500, 50, cores_remoto)
 #Desempenho REMOTO
 # Para isso é necessário calcular a média daqueles alunos para cada grupo
 medias_remoto <- calcula_medias(TABELA_GERAL_REMOTO)
+COEFICIENTE_REMOTO <- coeficiente_geral(TABELA_GERAL_REMOTO)
 #MEDIANAS
 
 medianas_remoto <- calcula_medianas(TABELA_GERAL_REMOTO)
@@ -162,10 +168,15 @@ cria_grafico_medias(medias_remoto, cores_remoto, "Desempenho dos alunos nas opta
 
 cria_grafico_medianas(medianas_remoto, cores_remoto)
 media_medianas_remoto <- mean(medianas_remoto$mediana)
-
+REMOTO_MEDIA_MEDIANAS <- medias_remoto %>%  group_by(gender) %>% summarise(media_mediana = mean(mediana))
+mean(REMOTO_MEDIA_MEDIANAS$media_mediana)
 
 #Desempenho PRESENCIAL
 medias_presencial <- calcula_medias(TABELA_GERAL_PRESENCIAL)
+COEFICIENTE_PRESENCIAL <- coeficiente_geral(TABELA_GERAL_PRESENCIAL)
+
+PRESENCIAL_MEDIA_MEDIANAS <- medias_presencial %>%  group_by(gender, grupo) %>% summarise(media_mediana = mean(mediana))
+
 cria_grafico_medias(medias_presencial, cores_presencial, "Desempenho dos alunos nas optativas nos períodos PRESENCIAIS")
 
 medianas_presencial <- calcula_medianas(TABELA_GERAL_PRESENCIAL)

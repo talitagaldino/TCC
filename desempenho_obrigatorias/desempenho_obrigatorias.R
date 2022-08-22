@@ -27,7 +27,8 @@ tabela_disciplinas_remoto = function(disciplinas, dataFrame, periodo_inicial){
 }
 
 gera_tabela_media = function(data){
-  medias <- data %>% group_by(name,gender, subjectCode) %>% filter(grade != "-") %>% summarise(media = round(mean(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2), dp = round(sd(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2), mediana = round(median(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2))
+  medias <- data %>% group_by(gender) %>% filter(grade != "-") %>% summarise(media = round(mean(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2), dp = round(sd(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2), mediana = round(median(as.numeric(sub(",", ".",grade, fixed = TRUE))), 2)) %>%
+    mutate(coeficiente = (dp/media)*100)
   
   return (medias)
 }

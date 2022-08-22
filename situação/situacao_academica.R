@@ -14,7 +14,7 @@ motivos_evasao_remoto %>% filter(statusCode != "ATIVO", statusCode != "GRADUADO"
   geom_col(position = "dodge") + coord_flip() + 
   labs(x = "Situação",
        y = "Quantidade",
-       fill = "Gênero") +
+       fill = "Sexo") +
   scale_fill_manual(values= c("#F5A9E1", "#819FF7")) +
   theme(legend.position = "top") 
 
@@ -22,7 +22,7 @@ motivos_evasao_presencial %>% filter(statusCode != "ATIVO", statusCode != "GRADU
   geom_col(position = "dodge") + coord_flip() + 
   labs(x = "Situação",
        y = "Quantidade",
-       fill = "Gênero") +
+       fill = "Sexo") +
   scale_fill_manual(values= c("#DA81F5", "#01DF74")) + scale_y_continuous(breaks=seq(0, 300, 50), limits=c(0, 300)) + theme(legend.position = "top") 
 
 TABELA_EVASAO_PRESENCIAL <- motivos_evasao_presencial %>% filter(statusCode != "ATIVO", statusCode != "GRADUADO")
@@ -35,7 +35,7 @@ motivos_evasao_remoto %>% filter(statusCode == "ATIVO") %>%
   geom_col(position = "dodge") + scale_y_continuous(breaks=seq(0, 700, 100), limits=c(0, 700)) +
   labs(y = "Quantidade",
        x = "Período",
-       fill = "Gênero") + scale_fill_manual(values= c("#F5A9E1", "#819FF7")) + theme(legend.position = "top") 
+       fill = "Sexo") + scale_fill_manual(values= c("#F5A9E1", "#819FF7")) + theme(legend.position = "top") 
 
 quantidade_ativos <- motivos_evasao_remoto %>% filter(statusCode == "ATIVO")
 # Alunos graduados nos períodos REMOTOS
@@ -54,7 +54,7 @@ motivos_evasao_remoto %>% filter(statusCode == "GRADUADO") %>%
   geom_col(position = "dodge") + scale_y_continuous(breaks=seq(0, 80, 10), limits=c(0, 80)) + coord_flip() +
   labs(y = "Quantidade",
        x = "Período",
-       fill = "Gênero") + scale_fill_manual(values= c("#F5A9E1", "#819FF7")) + theme(legend.position = "top") 
+       fill = "Sexo") + scale_fill_manual(values= c("#F5A9E1", "#819FF7")) + theme(legend.position = "top") 
 
 # Alunos graduados nos períodos presenciais
 
@@ -70,10 +70,10 @@ num_homens_grad_presencial <- sum(graduados_presencial_homens$quantidade)
 
 motivos_evasao_presencial_periodo %>% filter(statusCode == "GRADUADO") %>%
   ggplot(aes(x=as.factor(statusYear), y = quantidade, fill = gender)) +
-  geom_col(position = "stack") + scale_y_continuous(breaks=seq(0, 80, 10), limits=c(0, 80)) + coord_flip() +
+  geom_col(position = "dodge") + scale_y_continuous(breaks=seq(0, 80, 10), limits=c(0, 80)) + coord_flip() +
   labs(y = "Quantidade",
        x = "Período",
-       fill = "Gênero") + scale_fill_manual(values= c("#DA81F5", "#01DF74")) + theme(legend.position = "top") 
+       fill = "Sexo") + scale_fill_manual(values= c("#DA81F5", "#01DF74")) + theme(legend.position = "top") 
 
 graduados_total <- DADOS_ALUNOS %>% filter(statusCode == "GRADUADO")%>% group_by(statusCode, gender) %>% summarise(quantidade = n())
 
