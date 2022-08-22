@@ -76,3 +76,7 @@ motivos_evasao_presencial_periodo %>% filter(statusCode == "GRADUADO") %>%
        fill = "Gênero") + scale_fill_manual(values= c("#DA81F5", "#01DF74")) + theme(legend.position = "top") 
 
 graduados_total <- DADOS_ALUNOS %>% filter(statusCode == "GRADUADO")%>% group_by(statusCode, gender) %>% summarise(quantidade = n())
+
+REMOTO_evasao_tabela <- motivos_evasao_remoto %>% filter(statusCode != "ATIVO", statusCode != "GRADUADO")
+total = sum(REMOTO_evasao_tabela$quantidade) 62
+abandono_remoto <- REMOTO_evasao_tabela %>% filter(statusCode == "CANCELAMENTO POR ABANDONO")
